@@ -11,9 +11,8 @@ import org.example.tiktok01.service.CaptchaService;
 import org.example.tiktok01.service.EmailService;
 import org.example.tiktok01.util.DateUtil;
 import org.example.tiktok01.util.RedisCacheUtil;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.GsonBuilderUtils;
+
 import org.springframework.stereotype.Service;
 
 import java.awt.image.BufferedImage;

@@ -1,6 +1,7 @@
 package org.example.tiktok01.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -22,6 +23,7 @@ public class Captcha implements Serializable {
     /**
      * uuid
      */
+    @TableId
     @NotBlank(message = "uuid为空")
     private String uuid;
 
