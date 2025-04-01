@@ -1,7 +1,5 @@
 package org.example.douyin.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import org.example.douyin.entity.dto.CaptchaDTO;
 import org.example.douyin.enums.CaptchaStatus;
 
 import java.awt.image.BufferedImage;
@@ -19,7 +17,7 @@ public interface CaptchaService{
 
     BufferedImage getImageCaptcha(String uuId);
 
-    CaptchaStatus validateImageCaptcha(CaptchaDTO captchaDTO);
+    CaptchaStatus validateImageCaptcha(String code, String uuId);
 
     CaptchaStatus validateEmailCode(String email, String code);
 }

@@ -3,11 +3,9 @@ package org.example.douyin.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.google.code.kaptcha.Producer;
 import lombok.extern.slf4j.Slf4j;
-import org.example.douyin.entity.dto.CaptchaDTO;
 import org.example.douyin.enums.CaptchaStatus;
 import org.example.douyin.exception.BaseException;
 import org.example.douyin.service.CaptchaService;
-import org.example.douyin.service.EmailService;
 import org.example.douyin.util.RedisConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -30,8 +28,6 @@ public class CaptchaServiceImpl implements CaptchaService  {
     @Autowired
     private Producer producer;
     
-    @Autowired
-    private EmailService emailService;
 
     /**
      * 生成验证码和与之对应的验证码图片
@@ -54,14 +50,10 @@ public class CaptchaServiceImpl implements CaptchaService  {
 
     /**
      * 校验用户根据图形验证码输入的验证码 
-     * @param captchaDTO
-     * @return boolean 
      */
     @Override
-    public CaptchaStatus validateImageCaptcha(CaptchaDTO captchaDTO) {
+    public CaptchaStatus validateImageCaptcha(String uuId, String code) {
         // 1.参数校验（空值检查）
-        String code = captchaDTO.getCode();
-        String uuId = captchaDTO.getUuid();
         if (StrUtil.isEmpty(code) || StrUtil.isEmpty(uuId)) {
             return CaptchaStatus.ISNULL;
         }

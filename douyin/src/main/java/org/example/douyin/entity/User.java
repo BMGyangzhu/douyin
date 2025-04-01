@@ -23,16 +23,14 @@ import java.util.Set;
 public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-
     
     private String nickName;
 
     @Email
     private String email;
 
-//    @NotBlank(message = "密码不能为空")
-//    private String password;
+    @NotBlank(message = "密码不能为空")
+    private String password;
 
     private String description;
 

@@ -1,5 +1,6 @@
 package org.example.douyin.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.douyin.util.R;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
@@ -13,6 +14,7 @@ import java.util.StringJoiner;
 
 @RestController
 @ControllerAdvice
+@Slf4j
 public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
@@ -24,6 +26,8 @@ public class ExceptionController {
 
     @ExceptionHandler(BaseException.class)
     public R bex(BaseException e){
+        log.warn("业务异常: {}", e.getMsg());
+        log.warn("异常堆栈: ", e);
         return R.error().message(e.getMsg());
     }
 

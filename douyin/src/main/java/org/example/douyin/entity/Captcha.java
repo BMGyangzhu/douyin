@@ -1,13 +1,10 @@
-package org.example.douyin.entity.dto;
+package org.example.douyin.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>
@@ -19,24 +16,27 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)   
-public class CaptchaDTO implements Serializable {
+public class Captcha implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * uuid
      */
+    @NotBlank(message = "uuid为空")
     private String uuid;
 
     /**
      * 验证码
      */
+    @NotBlank(message = "图形验证码为空")
     private String code;
 
     /**
-     * 邮箱验证码
+     * 邮箱
      */
-    private String emailCode;
+    @NotBlank
+    private String email;
     
 
 

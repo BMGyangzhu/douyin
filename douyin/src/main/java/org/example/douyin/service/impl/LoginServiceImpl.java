@@ -1,14 +1,13 @@
 package org.example.douyin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.lang.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.example.douyin.entity.Captcha;
 import org.example.douyin.entity.User;
-import org.example.douyin.entity.dto.CaptchaDTO;
-import org.example.douyin.entity.dto.LoginDTO;
+import org.example.douyin.entity.dto.UserDTO;
+import org.example.douyin.entity.vo.UserVO;
 import org.example.douyin.enums.CaptchaStatus;
 import org.example.douyin.exception.BaseException;
 import org.example.douyin.service.CaptchaService;
@@ -19,8 +18,8 @@ import org.example.douyin.util.R;
 import org.example.douyin.util.RedisConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import javax.imageio.ImageIO;
@@ -28,12 +27,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.example.douyin.util.RedisConstants.LOGIN_USER_KEY;
-import static org.example.douyin.util.RedisConstants.LOGIN_USER_TTL;
 
 /**
  * @author bgmyangzhu
@@ -54,36 +48,33 @@ public class LoginServiceImpl implements LoginService {
     
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 邮箱登录/注册
-     * @param loginDTO
-     * @return
+     * @return UserVO
      */
     @Override
-    @Transactional  
-    public R emailLogin(LoginDTO loginDTO) {
-        String email = loginDTO.getEmail();
-        User user = userService.lambdaQuery().eq(User::getEmail, email).one();
-        // 如果已经注册，直接登录
-        if (user == null) {
-            user = userService.createUserWithEmail(email);
+    public UserVO login(UserDTO userDTO) {
+        log.info("用户登录：{}",userDTO );
+        String password = userDTO.getPassword();
+
+        User user = userService.lambdaQuery().eq(User::getEmail, userDTO.getEmail()).one();
+        if (ObjectUtils.isEmpty(user)) {
+            throw new BaseException("该账号不存在");
         }
-        // 验证邮箱验证码
-        checkEmailCode(loginDTO);
-        // 保存用户信息到 redis 中 
-        String token = UUID.randomUUID().toString(true); 
-        // 将 User 对象转为 HashMap存储
-        Map<String, Object> userMap = BeanUtil.beanToMap(user, new HashMap<>(),
-                CopyOptions.create().setIgnoreNullValue(true).setFieldValueEditor((filedName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
-        // 存储
-        String tokenKey = LOGIN_USER_KEY + token;
-        stringRedisTemplate.opsForHash().putAll(tokenKey,userMap);
-        // 设置 token 有效期
-        stringRedisTemplate.expire(tokenKey,LOGIN_USER_TTL, TimeUnit.MINUTES); 
         
+        boolean match = passwordEncoder.matches(password, user.getPassword());
+        if (!match) {
+            throw new BaseException("密码不一致");
+        }
+
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+
         // 返回成功
-        return R.ok();
+        return userVO;
     }
     
 
@@ -105,11 +96,12 @@ public class LoginServiceImpl implements LoginService {
     }
     
     @Override
-    public R checkCodeAndSendToEmail(LoginDTO loginDTO) {
-        String email = loginDTO.getEmail();
-        CaptchaDTO captchaDTO = loginDTO.getCaptcha();
+    public R checkImageCodeAndGetEmailCode(Captcha captcha) {
         // 1.验证用户输入图形验证码是否正确
-        CaptchaStatus captchaStatus = captchaService.validateImageCaptcha(captchaDTO);
+        String ImageCode = captcha.getCode();
+        String uuId = captcha.getUuid();
+        String email = captcha.getEmail();
+        CaptchaStatus captchaStatus = captchaService.validateImageCaptcha(uuId, ImageCode);
         // 2.不正确，抛出异常
         if(!captchaStatus.isValid()) {
             throw new BaseException(captchaStatus.getMessage());
@@ -131,20 +123,6 @@ public class LoginServiceImpl implements LoginService {
         return R.ok();
     }
 
-    /**
-     * 验证用户输入的邮箱验证码
-     */
-    @Override
-    public R checkEmailCode(LoginDTO loginDTO) {
-        String emailCode = loginDTO.getCaptcha().getEmailCode();
-        String email = loginDTO.getEmail();
-        CaptchaStatus captchaStatus = captchaService.validateEmailCode(email, emailCode);
-        // 不正确，抛出异常
-        if (!captchaStatus.isValid()) {
-           throw new BaseException(captchaStatus.getMessage()); 
-        }
-        return R.ok();
-    }
-    
+ 
     
 }

@@ -1,21 +1,20 @@
 package org.example.douyin.entity.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author bgmyangzhu
- * @date 2025/3/31 17:23
+ * @date 2025/4/1 22:52
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class LoginDTO {
-    
+public class UserDTO {
     @Email
     private String email;
-
-    CaptchaDTO captcha;
     
+    @NotBlank(message = "密码不能为空")
+    private String password;
+
 }
