@@ -60,6 +60,7 @@ public class CaptchaServiceImpl implements CaptchaService  {
         // 2.从redis中获取验证码
         String redisKey = RedisConstants.CAPTCHA_KEY_PREFIX + uuId;
         String codeFromRedis = stringRedisTemplate.opsForValue().get(redisKey);
+        stringRedisTemplate.delete(redisKey);
         
         // 3.验证逻辑
         if (codeFromRedis == null) {
@@ -78,7 +79,7 @@ public class CaptchaServiceImpl implements CaptchaService  {
      * @param emailCode
      */
     @Override
-    public CaptchaStatus validateEmailCode(String email, String emailCode) {
+    public CaptchaStatus validateEmailCode(String email, String emailCode, boolean deleteEmailCode) {
         // 1.获取redis中的邮箱验证码
         if (StrUtil.isEmpty(email) || StrUtil.isEmpty(emailCode)) {
             return CaptchaStatus.ISNULL;
@@ -94,7 +95,8 @@ public class CaptchaServiceImpl implements CaptchaService  {
            return CaptchaStatus.MISMATCH;
         }
         // 验证通过后立即删除Redis中的验证码（防止重复使用）
-        stringRedisTemplate.delete(redisKey);
+        if (deleteEmailCode)
+            stringRedisTemplate.delete(redisKey);        
         return CaptchaStatus.VALID; // 验证通过
     }
     

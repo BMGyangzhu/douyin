@@ -21,7 +21,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new Interceptor(userService))
-                .excludePathPatterns("/**");
+                .addPathPatterns("/admin/**", "authorize/**")
+                .addPathPatterns("/douyin/**")
+                .excludePathPatterns("/douyin/login/**", "/douyin/index/**","/douyin/file/**", "douyin/cdn/**");
     }
 //    @Override
 //    public void addCorsMappings(CorsRegistry registry) {

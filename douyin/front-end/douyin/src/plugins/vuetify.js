@@ -25,7 +25,7 @@ const vuetify = createVuetify({
   },
   directives,
   defaults: {
-    VBtn: { color: 'blue' } // ✅ 修正 '#blue'，改为 'blue'
+    VBtn: { color: 'blue' } 
   },
   theme: {
     defaultTheme: "myCustomLightTheme",

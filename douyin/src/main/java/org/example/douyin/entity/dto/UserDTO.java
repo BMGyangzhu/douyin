@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author bgmyangzhu
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class UserDTO {
     @Email
+    @NotBlank(message = "邮箱不可为空")
     private String email;
     
     @NotBlank(message = "密码不能为空")

@@ -1,22 +1,22 @@
 package org.example.douyin.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.example.douyin.entity.Register;
+import org.example.douyin.entity.dto.FindPasswordRequest;
+import org.example.douyin.entity.dto.Register;
 import org.example.douyin.entity.User;
+import org.example.douyin.entity.vo.UserVO;
 import org.example.douyin.enums.CaptchaStatus;
 import org.example.douyin.exception.BaseException;
 import org.example.douyin.mapper.UserMapper;
 import org.example.douyin.service.CaptchaService;
 import org.example.douyin.service.UserService;
-import org.example.douyin.util.RedisConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static org.example.douyin.util.SystemConstants.USER_NICK_PREFIX;
 
 /**
  * @author bgmyangzhu
@@ -35,7 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private PasswordEncoder passwordEncoder;
     
     @Override
-    public boolean register(Register register){
+    public void register(Register register){
         // 查看邮箱是否存在
         long count = count(new LambdaQueryWrapper<User>().eq(User::getEmail, register.getEmail()));
         if (count == 1) {
@@ -43,7 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         String email = register.getEmail();
         String emailCode = register.getEmailCode();
-        CaptchaStatus captchaStatus = captchaService.validateEmailCode(email, emailCode);
+        CaptchaStatus captchaStatus = captchaService.validateEmailCode(email, emailCode, true);
         if (!captchaStatus.isValid()) {
             throw new BaseException(captchaStatus.getMessage());
         }
@@ -56,19 +56,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(encryptPassword);
         save(user);
         
-        return true;
         
     }
+
     @Override
-    public User createUserWithEmail(String email) {
-        // 1.创建用户
-        User user = new User();
-        user.setEmail(email);
-        user.setNickName(USER_NICK_PREFIX + RandomUtil.randomString(10));
-        user.setDescription("这个人很懒...");
-        // 2.添加用户
-        save(user);
-        return user;
+    public void findPassword(FindPasswordRequest request) {
+        final String email = request.getEmail();
+        final String password = request.getPassword();
+        final String emailCode = request.getEmailCode();
+
+        User user = lambdaQuery().eq(User::getEmail, email).one();
+        if (user == null) {
+            throw new BaseException("该邮箱不存在");
+        }
+        
+        CaptchaStatus captchaStatus = captchaService.validateEmailCode(email, emailCode, true);
+        if (!captchaStatus.isValid()) {
+            throw new BaseException(captchaStatus.getMessage());
+        }
+
+        String encryptPassword = passwordEncoder.encode(password);
+        user.setPassword(encryptPassword);
+        
+        updateById(user);
+
     }
     
+    @Override
+    public UserVO getInfo(Long userId) {
+        
+        final User user = getById(userId);
+        if (ObjectUtils.isEmpty(user)) {
+            return new UserVO();
+        }
+        final UserVO userVO = new UserVO();
+        BeanUtil.copyProperties(user, userVO);
+        
+        // 查询关注数量
+//        final long followCount = followService.getFollowCount(userId);
+        
+        // 查询粉丝数量
+//        final long fansCount = followService.getFansCount(userId);
+//        userVO.setFollow(followCount);
+//        userVO.setFans(fansCount);
+        return userVO;
+    }
 }

@@ -4,8 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.example.douyin.entity.Captcha;
+import org.example.douyin.entity.dto.Captcha;
 import org.example.douyin.entity.User;
+import org.example.douyin.entity.dto.FindPasswordRequest;
 import org.example.douyin.entity.dto.UserDTO;
 import org.example.douyin.entity.vo.UserVO;
 import org.example.douyin.enums.CaptchaStatus;
@@ -123,6 +124,12 @@ public class LoginServiceImpl implements LoginService {
         return R.ok();
     }
 
- 
-    
+    @Override
+    public void checkEmailCode(String email, String emailCode, boolean deleteEmailCode) {
+        CaptchaStatus captchaStatus = captchaService.validateEmailCode(email, emailCode, deleteEmailCode);
+        if (!captchaStatus.isValid()) {
+            throw new BaseException(captchaStatus.getMessage());
+        }
+    }
+
 }

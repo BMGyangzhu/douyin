@@ -1,7 +1,7 @@
 //package org.example.douyin.converter;
 //
 //import org.example.douyin.entity.dto.RegisterDTO;
-//import org.example.douyin.entity.Register;
+//import org.example.douyin.entity.dto.Register;
 //import org.mapstruct.Mapper;
 //import org.mapstruct.Mapping;
 //import org.springframework.security.crypto.password.PasswordEncoder;

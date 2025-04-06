@@ -8,7 +8,7 @@ const Config = {
  * @param {Int} userId 用户Id 
  * @returns 
  */
-export const apiGetUserInfo = (userId="")=>{
+export const apiGetUserInfo = (userId="") =>{
     return request.get(`/customer/getInfo/${userId}`)
 }
 

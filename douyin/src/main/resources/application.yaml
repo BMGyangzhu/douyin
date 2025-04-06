@@ -33,14 +33,22 @@ spring:
         min-idle: 1
         time-between-eviction-runs: 10s
         
+qiniu:
+  kodo:
+    access-key: ${QINIU_KODO_ACCESS:7FRxnJStsTUVj_J49aZffT_mvmwNQZxEy9l5Xfvy}
+    secret-key: ${QINIU_KODO_SECRET:_DdnT5STGrcAruqr-znBQnxBGYG_u0SAYE0_vyXi}
+    bucket-name: ${QINIU_KODO_BUCKET:bgmyangzhu}
+    domain: ${QINIU_KODO_DOMAIN:http://200022-top-idvpdlc.qiniudns.com}
+        
 server:
-  port: 8080
+  port: 8081
 
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志到控制台
   global-config:
     db-config:
-      logic-delete-field: deleted        # 全局逻辑删除字段名
+      logic-delete-field: is_deleted        # 全局逻辑删除字段名
       logic-delete-value: 1              # 逻辑已删除值
       logic-not-delete-value: 0          # 逻辑未删除值
+  

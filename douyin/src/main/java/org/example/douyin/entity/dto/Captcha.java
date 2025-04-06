@@ -1,9 +1,11 @@
-package org.example.douyin.entity;
+package org.example.douyin.entity.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -35,7 +37,8 @@ public class Captcha implements Serializable {
     /**
      * 邮箱
      */
-    @NotBlank
+    @Email
+    @NotBlank(message = "邮箱不可为空")
     private String email;
     
 

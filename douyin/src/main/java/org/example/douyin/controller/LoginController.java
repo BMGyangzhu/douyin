@@ -1,20 +1,18 @@
 package org.example.douyin.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.douyin.entity.Captcha;
-import org.example.douyin.entity.Register;
-import org.example.douyin.entity.dto.UserDTO;
+import org.example.douyin.entity.dto.*;
 import org.example.douyin.entity.vo.UserVO;
 import org.example.douyin.service.LoginService;
 import org.example.douyin.service.UserService;
 import org.example.douyin.util.JwtUtils;
 import org.example.douyin.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -35,10 +33,8 @@ public class LoginController {
     
     @PostMapping("/register")
     public R register(@RequestBody @Validated Register register) {
-        if (userService.register(register)) {
-            return R.ok().message("注册成功");
-        }
-        return  R.error().message("注册失败，验证码错误");
+        userService.register(register);
+        return R.ok().message("注册成功");
     }
     
     @GetMapping("/captcha.jpg/{uuId}")
@@ -63,6 +59,20 @@ public class LoginController {
     public R getEmailCode(@RequestBody @Validated Captcha captcha) {
         log.info("获取邮箱验证码, captcha:{}", captcha);    
         return loginService.checkImageCodeAndGetEmailCode(captcha);
+    }
+    
+    @PostMapping("/checkEmailCode")
+    public R checkEmailCode(@RequestBody @Validated EmailCodeRequest request) {
+        String email = request.getEmail();
+        String emailCode = request.getEmailCode();
+        loginService.checkEmailCode(email, emailCode, false);
+        return R.ok();
+    }
+    
+    @PostMapping("/findPassword")
+    public R findPassword(@RequestBody @Validated FindPasswordRequest request) {
+        userService.findPassword(request);
+        return R.ok().message("注册成功"); 
     }
 
 

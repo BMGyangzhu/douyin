@@ -30,7 +30,7 @@ public class UserVO {
 //    private Long defaultFavoritesId;
 
 //     头像
-//    private Long avatar;
+    private Long avatar;
     
 //    @TableField(exist = false)
 //    private Boolean each;

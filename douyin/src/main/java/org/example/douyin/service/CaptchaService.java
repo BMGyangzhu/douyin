@@ -19,5 +19,5 @@ public interface CaptchaService{
 
     CaptchaStatus validateImageCaptcha(String code, String uuId);
 
-    CaptchaStatus validateEmailCode(String email, String code);
+    CaptchaStatus validateEmailCode(String email, String code, boolean  deleteEmailCode);
 }
